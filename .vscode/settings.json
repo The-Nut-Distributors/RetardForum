@@ -1,0 +1,9 @@
+{
+  "deno.enable": true,
+  "deno.unstable": true,
+  "deno.lint": true,
+  "C_Cpp.default.includePath": [
+    "/usr/include/python3.9",
+    "${default}"
+  ]
+}
