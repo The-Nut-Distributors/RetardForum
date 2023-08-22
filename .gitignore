@@ -3,3 +3,5 @@ web_auth.node
 libdb.so
 retard_forum.db
 __pycache__
+/.direnv
+.envrc.local
