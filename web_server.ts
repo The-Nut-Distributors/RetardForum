@@ -50,17 +50,58 @@ console.log("Listening on http://127.0.0.1:8080");
 for await (const conn of Deno.listen({ port: 8080 })) {
   (async () => {
     for await (const e of Deno.serveHttp(conn)) {
-      const cookie = e.request.headers.get("Cookie");
-      if (typeof cookie !== "string") {
-        e.respondWith(new Response("no cookie"));
+      // const cookie = e.request.headers.get("Cookie");
+      // if (typeof cookie !== "string") {
+      //   e.respondWith(new Response("no cookie"));
+      //   continue;
+      // }
+      // const user = auth.checkCookie(db, cookie);
+      // if (!user) {
+      //   e.respondWith(new Response("not logged in"));
+      //   continue;
+      // }
+      // e.respondWith(new Response("Hello, " + user));
+      const url = new URL(e.request.url);
+      if (
+        url.pathname === "/login" && e.request.method === "POST" &&
+        e.request.body
+      ) {
+        let body = "";
+        for await (
+          const chunk of e.request.body.pipeThrough(new TextDecoderStream())
+        ) {
+          body += chunk;
+        }
+        const loginInfo = new URLSearchParams(body);
+        console.log(Object.fromEntries(loginInfo.entries()));
+        // TODO: login logic (web_auth.c must handle login)
         continue;
       }
-      const user = auth.checkCookie(db, cookie);
-      if (!user) {
-        e.respondWith(new Response("not logged in"));
-        continue;
+      if (
+        url.pathname === "/signup" && e.request.method === "POST" &&
+        e.request.body
+      ) {
+        // TODO: signup logic (web_auth.c must handle signup)
       }
-      e.respondWith(new Response("Hello, " + user));
+      e.respondWith(
+        new Response(
+          `Login<form action="/login" method="POST">
+<input type="text" name="username" />
+<input type="password" name="password" />
+<input type="submit" value="Login" />
+</form><br />
+Signup<form action="/signup" method="POST">
+<input type="text" name="username" />
+<input type="password" name="password" />
+<input type="submit" value="Signup" />
+</form>`,
+          {
+            headers: {
+              "Content-Type": "text/html",
+            },
+          },
+        ),
+      );
     }
   })();
 }

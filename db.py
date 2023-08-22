@@ -1,6 +1,8 @@
 import sqlite3
 import uuid
 
+# TODO: users Table, signup and login functions to be called from web_auth.c through web_server.ts
+
 def connect():
     con = sqlite3.connect("furom.db")
     con.execute(
