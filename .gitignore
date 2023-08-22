@@ -1,5 +1,5 @@
 include
 web_auth.node
 libdb.so
-furom.db
+retard_forum.db
 __pycache__

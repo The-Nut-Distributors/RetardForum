@@ -4,13 +4,21 @@ import uuid
 # TODO: users Table, signup and login functions to be called from web_auth.c through web_server.ts
 
 def connect():
-    con = sqlite3.connect("furom.db")
+    con = sqlite3.connect("retard_forum.db")
     con.execute(
         """CREATE TABLE IF NOT EXISTS sessions (
-        id TEXT NOT NULL,
-        user TEXT
-    )"""
+            id TEXT NOT NULL,
+            user TEXT
+        )"""
     )
+    con.execute(
+        """CREATE TABLE IF NOT EXISTS users (
+            id INT PRIMARY KEY NOT NULL,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )"""
+    )
+    con.commit()
     return con
 
 

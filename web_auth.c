@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 
+napi_value signup(napi_env env, napi_callback_info info) {}
+
 napi_value check_cookie(napi_env env, napi_callback_info info) {
   napi_status status;
   napi_value ok;

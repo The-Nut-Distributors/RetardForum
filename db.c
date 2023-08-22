@@ -3,6 +3,8 @@
 #include <dlfcn.h>
 #include <unistd.h>
 
+// TODO: Figure out how to print exceptions from called Python functions
+
 typedef struct {
   PyObject *module;
   PyObject *connection;
