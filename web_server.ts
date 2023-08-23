@@ -11,6 +11,10 @@ const dblib = Deno.dlopen(
     deinit: { parameters: ["pointer"], result: "void" },
     findSession: { parameters: ["pointer", "buffer"], result: "pointer" },
     createSession: { parameters: ["pointer"], result: "pointer" },
+    ensureUserExists: {
+      parameters: ["pointer", "buffer", "buffer"],
+      result: "i32",
+    },
   },
 );
 
@@ -37,6 +41,15 @@ class DB {
     const user = dblib.symbols.createSession(this.#db)!;
     const view = new Deno.UnsafePointerView(user);
     return view.getCString();
+  }
+  ensureUserExists(username: string, password_hash: string) {
+    const username_cstr = cstr(username);
+    const password_hash_cstr = cstr(password_hash);
+    return dblib.symbols.ensureUserExists(
+      this.#db,
+      username_cstr,
+      password_hash_cstr,
+    );
   }
   dispose() {
     dblib.symbols.deinit(this.#db);
@@ -81,7 +94,31 @@ for await (const conn of Deno.listen({ port: 8080 })) {
         url.pathname === "/signup" && e.request.method === "POST" &&
         e.request.body
       ) {
-        // TODO: signup logic (web_auth.c must handle signup)
+        let body = "";
+        for await (
+          const chunk of e.request.body.pipeThrough(new TextDecoderStream())
+        ) {
+          body += chunk;
+        }
+        const signupInfo = Object.fromEntries(
+          new URLSearchParams(body).entries(),
+        );
+        console.log(signupInfo);
+        if (
+          "username" in signupInfo &&
+          "password" in signupInfo &&
+          typeof signupInfo.username === "string" &&
+          typeof signupInfo.password === "string"
+        ) {
+          e.respondWith(
+            new Response(
+              `User ID: ${
+                db.ensureUserExists(signupInfo.username, signupInfo.password)
+              }`,
+            ),
+          );
+          continue;
+        }
       }
       e.respondWith(
         new Response(

@@ -35,6 +35,18 @@ DB *init(void) {
   return db;
 }
 
+int ensureUserExists(DB *db, const char *username, const char *password_hash) {
+  PyObject *args =
+      Py_BuildValue("(Oss)", db->connection, username, password_hash);
+  PyObject *eue = PyObject_GetAttrString(db->module, "ensureUserExists");
+  PyObject *result = PyObject_CallObject(eue, args);
+  if (result == NULL) {
+    PyErr_Print();
+    return -1;
+  }
+  return PyLong_AsLong(result);
+}
+
 void deinit(DB *db) {
   Py_DECREF(db->connection);
   Py_DECREF(db->module);
@@ -44,13 +56,7 @@ void deinit(DB *db) {
 
 char *findSession(DB *db, const char *id) {
   PyObject *fs = PyObject_GetAttrString(db->module, "findSession");
-  PyObject *args = PyTuple_New(2);
-  int status;
-  status = PyTuple_SetItem(args, 0, db->connection);
-  assert(status == 0);
-  PyObject *idPy = PyUnicode_FromString(id);
-  status = PyTuple_SetItem(args, 1, idPy);
-  assert(status == 0);
+  PyObject *args = Py_BuildValue("(Os)", db->connection, id);
   PyObject *result = PyObject_CallObject(fs, args);
   if (result == Py_None) {
     return NULL;

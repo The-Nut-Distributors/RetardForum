@@ -14,9 +14,10 @@
 
 ## Dependencies required
 
-- [Curl](https://curl.se/)
-- [Zig](https://ziglang.org/)
-- [Deno](https://deno.land/)
+-  [Curl](https://curl.se/)
+-  [Zig](https://ziglang.org/)
+-  [Deno](https://deno.land/)
+-  [Python](https://python.org/)
 
 ## Build and run
 
@@ -26,10 +27,4 @@ zig run -lc build.c
 
 ## Contributing
 
-3 space indent, see `.editorconfig`
-
-All commits must be done with the following command:
-
-```sh
-git commit -a -m "$(git diff HEAD | sha256sum - | awk '{print $1}' | base64 -w 0)"
-```
+3 space indent, see [`.editorconfig`](.editorconfig)

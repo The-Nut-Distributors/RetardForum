@@ -3,6 +3,7 @@ import uuid
 
 # TODO: users Table, signup and login functions to be called from web_auth.c through web_server.ts
 
+
 def connect():
     con = sqlite3.connect("retard_forum.db")
     con.execute(
@@ -13,7 +14,7 @@ def connect():
     )
     con.execute(
         """CREATE TABLE IF NOT EXISTS users (
-            id INT PRIMARY KEY NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL
         )"""
@@ -22,12 +23,24 @@ def connect():
     return con
 
 
+def ensureUserExists(con: sqlite3.Connection, username: str, password_hash: str) -> int:
+    con.execute(
+        "INSERT OR IGNORE INTO users (username, password_hash) VALUES (?, ?)",
+        (username, password_hash),
+    )
+    con.commit()
+    cur = con.execute("SELECT id FROM users WHERE username = ?", (username,))
+    res = cur.fetchone()
+    return res[0]
+
+
 def findSession(con: sqlite3.Connection, id: str) -> str:
     cur = con.execute("SELECT user FROM sessions WHERE id = ?", (id,))
     res = cur.fetchone()
     if res == None:
         return None
     return res[0]
+
 
 def createSession(con: sqlite3.Connection) -> str:
     id = str(uuid.uuid4())
