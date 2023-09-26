@@ -1,7 +1,9 @@
 #include "../argon2/include/argon2.h"
+#include "../include/base64/base64.c"
 #include "../include/node_api/node_api.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/random.h>
 
@@ -21,13 +23,19 @@ void hash_password(uint8_t *pwd, size_t pwd_len, uint8_t *out_buf) {
     out_buf[hash_len + i] = salt[i];
 }
 
-napi_value hash_password_napi(napi_env env, uint8_t *pwd, size_t pwd_len) {
-  void *data;
-  napi_value js_hash_value;
-  napi_status status = napi_create_arraybuffer(env, 48, &data, &js_hash_value);
+napi_value hash_password_napi_string(napi_env env, uint8_t *pwd,
+                                     size_t pwd_len) {
+
+  uint8_t hash[48];
+  hash_password(pwd, pwd_len, hash);
+  char *str = malloc(Base64encode_len(48));
+  assert(str);
+  int len = Base64encode(str, (char *)hash, 48);
+  napi_value js_str;
+  napi_status status = napi_create_string_utf8(env, str, len, &js_str);
+  free(str); // TODO: manage this from C++
   assert(status == napi_ok);
-  hash_password(pwd, pwd_len, data);
-  return js_hash_value;
+  return js_str;
 }
 
 napi_value signup(napi_env env, napi_callback_info info) {
@@ -39,9 +47,20 @@ napi_value signup(napi_env env, napi_callback_info info) {
   status = napi_get_named_property(env, argv[0], "ensureUserExists",
                                    &ensureUserExists);
   assert(status == napi_ok);
-  napi_value js_hash_value = hash_password_napi(env, (uint8_t *)"password", 8);
-  // napi_call_function(env, argv[0], ensureUserExists, 2);
-  return js_hash_value;
+  napi_value username = argv[1];
+  napi_value password_plain = argv[2];
+  uint8_t buf[4096];
+  size_t len;
+  status = napi_get_value_string_utf8(env, password_plain, buf, 4096, &len);
+  assert(status == napi_ok);
+  napi_value js_hash_value = hash_password_napi_string(env, buf, len);
+  napi_value args[2] = {
+      username,
+      js_hash_value,
+  };
+  napi_value user_id;
+  napi_call_function(env, argv[0], ensureUserExists, 2, args, &user_id);
+  return user_id;
 }
 
 napi_value login(napi_env env, napi_callback_info info) {

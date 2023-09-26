@@ -57,6 +57,11 @@ void fetch_remote_files(void) {
 
   mkdir("include/base64", 0755);
   {
+
+    http_get_cached(
+        "https://opensource.apple.com/source/QuickTimeStreamingServer/"
+        "QuickTimeStreamingServer-452/CommonUtilitiesLib/base64.h",
+        "include/base64/base64.h");
     http_get_cached(
         "https://opensource.apple.com/source/QuickTimeStreamingServer/"
         "QuickTimeStreamingServer-452/CommonUtilitiesLib/base64.c",
