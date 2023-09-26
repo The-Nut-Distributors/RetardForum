@@ -15,6 +15,7 @@
 ## Dependencies required
 
 -  [Curl](https://curl.se/)
+-  [Make](https://www.gnu.org/software/make/)
 -  [Zig](https://ziglang.org/)
 -  [Deno](https://deno.land/)
 -  [Python](https://python.org/)
@@ -22,6 +23,7 @@
 ## Build and run
 
 ```sh
+git submodule update --init --recursive
 zig run -lc build.c
 ```
 

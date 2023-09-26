@@ -5,7 +5,7 @@ import uuid
 
 
 def connect():
-    con = sqlite3.connect("retard_forum.db")
+    con = sqlite3.connect("db/retard_forum.db")
     con.execute(
         """CREATE TABLE IF NOT EXISTS sessions (
             id TEXT NOT NULL,

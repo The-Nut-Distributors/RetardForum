@@ -1,7 +1,7 @@
 include
-web_auth.node
-libdb.so
-retard_forum.db
+auth/web_auth.node
+db/libdb.so
+db/retard_forum.db
 __pycache__
 /.direnv
 .envrc.local

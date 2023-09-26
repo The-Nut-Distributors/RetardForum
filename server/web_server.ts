@@ -2,10 +2,12 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 
-const auth = require("./web_auth.node");
+Deno.addSignalListener("SIGINT", () => Deno.exit(1));
+
+const auth = require("../auth/web_auth.node");
 
 const dblib = Deno.dlopen(
-  "./libdb.so",
+  "./db/libdb.so",
   {
     init: { parameters: [], result: "pointer" },
     deinit: { parameters: ["pointer"], result: "void" },
@@ -116,6 +118,9 @@ for await (const conn of Deno.listen({ port: 8080 })) {
                 db.ensureUserExists(signupInfo.username, signupInfo.password)
               }`,
             ),
+          ).catch(() => {});
+          console.log(
+            auth.signup(db, signupInfo.username, signupInfo.password),
           );
           continue;
         }
@@ -138,7 +143,7 @@ Signup<form action="/signup" method="POST">
             },
           },
         ),
-      );
+      ).catch(() => {});
     }
   })();
 }
